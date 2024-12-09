@@ -14,7 +14,112 @@
 # Run migrations: docker compose run migrate
 #       Stop all: docker compose down (add -v to wipe db)
 #
-version: '3.7'
+
+#以下是基于 docker-compose.yml 文件的操作步骤，帮助你启动并管理项目：
+#
+#1. 构建镜像
+#
+#在项目根目录下运行以下命令，构建 app 和相关服务的镜像：
+#
+#docker compose build
+#
+#    说明：这一步会根据 app、migrate 和 revert 服务的 Dockerfile 构建镜像。
+#
+#2. 启动应用程序
+#
+#运行以下命令启动 app 和数据库：
+#
+#docker compose up app
+#
+#    说明：
+#
+#    •    这会启动 app 服务，并在后台启动 db 服务（由于 depends_on 的配置）。
+#    •    app 服务会绑定到宿主机的 81 端口，你可以通过 http://<服务器IP>:81 访问。
+#
+#如果需要后台运行：
+#
+#添加 -d 参数：
+#
+#docker compose up -d app
+#
+#3. 启动数据库
+#
+#如果你只需要启动数据库，可以运行以下命令：
+#
+#docker compose up db
+#
+#    说明：这会启动 PostgreSQL 数据库，并将其端口绑定到宿主机的 5432。
+#
+#4. 运行数据库迁移
+#
+#在项目根目录下运行以下命令，执行数据库迁移操作：
+#
+#docker compose run migrate
+#
+#    说明：
+#
+#    •    这会调用 migrate 服务，执行数据库迁移命令 ["migrate", "--yes"]。
+#    •    数据库必须运行，migrate 服务会依赖 db 服务。
+#
+#5. 回滚数据库迁移
+#
+#如果需要回滚迁移，运行以下命令：
+#
+#docker compose run revert
+#
+#    说明：
+#
+#    •    这会调用 revert 服务，执行 ["migrate", "--revert", "--yes"]。
+#    •    数据库必须运行，revert 服务会依赖 db 服务。
+#
+#6. 停止所有服务
+#
+#当你完成操作后，可以停止所有服务：
+#
+#docker compose down
+#
+#如果需要删除数据卷（清空数据库）：
+#
+#添加 -v 参数：
+#
+#docker compose down -v
+#
+#7. 查看容器日志
+#
+#如果需要调试，可以查看 app 或 db 服务的日志：
+#
+#docker compose logs app
+#docker compose logs db
+#
+#8. 验证网络
+#
+#确保所有容器在同一网络中，通过以下命令查看网络配置：
+#
+#docker network inspect 1panel-network
+#
+#示例操作流程
+#
+#假设你从零开始启动项目，完整流程如下：
+#    1.    构建镜像：
+#
+#docker compose build
+#
+#
+#    2.    启动 app 和数据库：
+#
+#docker compose up -d
+#
+#
+#    3.    执行数据库迁移：
+#
+#docker compose run migrate
+#
+#
+#    4.    查看日志确认是否正常运行：
+#
+#docker compose logs app
+#
+#如果在某一步遇到问题，可以提供错误日志或描述具体情况，我会进一步协助你！
 
 volumes:
   db_data:
@@ -86,5 +191,5 @@ services:
       
 networks:
   default:
-    external:
-      name: 1panel-network # 指定外部 PostgreSQL 容器的网络名称
+    name: 1panel-network # 指定外部网络名称
+    external: true       # 标记为外部网络
